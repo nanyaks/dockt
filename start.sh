@@ -18,10 +18,17 @@ function error_exit {
 }
 
 RUNNING=`pgrep docker`
-if [ "$?" = "0" ]; then
+if [ "$?" = "0" ]
+then
     error_exit "Docker already running. Aborting!"
 fi
 
-# TRIAL=('LOKNAN', 'NANYAK')
+# Test if docker machine is running
+MACHINE_STATUS=$( docker-machine ls | awk 'NR == 2 { print $3 }' )
+if [ $MACHINE_STATUS = 'Stopped' ]
+then
+    error_exit "Docker machine is not running"
+fi
+
 
 # echo ${#RUNNING[@]}
