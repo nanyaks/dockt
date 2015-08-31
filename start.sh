@@ -17,6 +17,31 @@ function error_exit {
     exit 1
 }
 
+# Help interface
+# This should show the help interface and exit the script.
+function show_help {
+    echo "Pass in correct argument"
+    exit 1
+}
+
+#
+#   If the argument to the script is 'stopall' then stop all
+#   If remove, then stop and remove all
+#   If the argument is 'start env', then start the docker-machine and make the 'env' the active one
+#   If the argument is 'stop env', then stop the env
+#
+#
+if [ -n "$1" ]
+then
+    #
+    error_exit "Argument passed"
+else
+    #
+    show_help
+fi
+
+
+
 RUNNING=`pgrep docker`
 if [ "$?" = "0" ]
 then
