@@ -35,7 +35,14 @@ if [ -n "$1" ]
 then
     if [ "$1" = 'stop-all' ]
     then
+
+        echo "Trying to stop docker containers..."
         COMMAND=`docker stop $(docker ps -aq)` || error_exit "Could not stop docker containers"
+
+         if [ "$?" = 0 ]; then
+             echo "Done!"
+         fi
+
     elif [ "$1" = 'remove-all' ]
     then
         COMMAND=`docker stop $(docker ps -aq)` && `docker rm $(docker ps -aq)` || error_exit "Could not terminate docker containers"
