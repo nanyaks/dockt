@@ -33,12 +33,30 @@ function show_help {
 #
 if [ -n "$1" ]
 then
-    #
-    error_exit "Argument passed"
+    if [ "$1" = 'stop-all' ]
+    then
+        COMMAND=`docker stop $(docker ps -aq)` || error_exit "Could not stop docker containers"
+    elif [ "$1" = 'remove-all' ]
+    then
+        COMMAND=`docker stop $(docker ps -aq)` && `docker rm $(docker ps -aq)` || error_exit "Could not terminate docker containers"
+    elif [ "$1" = 'start' ]
+    then
+        echo "start"
+    elif [ "$1" = 'stop' ]
+    then
+        COMMAND=`docker-machine stop $2` || error_exit "Could not stop the docker machine"
+
+        # Check the machine statue
+        MACHINE_STATUS=$( docker-machine ls | awk 'NR == 2 { print $3 }' )
+        if [ "$?" = 0 && $MACHINE_STATUS = 'Stopped']; then
+            error_exit "Docker machine stopped."
+        fi
+    fi
 else
-    #
+    # Show the help screen and exit 1
     show_help
 fi
+
 
 
 
@@ -48,12 +66,6 @@ then
     error_exit "Docker already running. Aborting!"
 fi
 
-# Test if docker machine is running
-MACHINE_STATUS=$( docker-machine ls | awk 'NR == 2 { print $3 }' )
-if [ $MACHINE_STATUS = 'Stopped' ]
-then
-    error_exit "Docker machine is not running"
-fi
 
 
 # echo ${#RUNNING[@]}
