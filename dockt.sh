@@ -36,10 +36,15 @@ function show_help {
 #   If the argument is 'start env', then start the docker-machine and make the 'env' the active one
 #   If the argument is 'stop env', then stop the env
 #
-#
 if [ -n "$1" ]
 then
-    if [ "$1" = 'stop-all' ]
+    if [ "$1" = 'status' ]; then
+        $(docker-machine ls 1>&2) || error_exit "Could not determine status of 'docker-machine'"
+         if [ "$?" = 0 ]; then
+             success_exit "Finished"
+         fi
+
+    elif [ "$1" = 'stop-all' ]
     then
 
         printf "Trying to stop docker containers..."
