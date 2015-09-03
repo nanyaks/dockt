@@ -17,10 +17,16 @@ function error_exit {
     exit 1
 }
 
+# Our success message handler
+function success_exit {
+    echo "$1" 1>&2
+    exit 0
+}
+
 # Help interface
 # This should show the help interface and exit the script.
 function show_help {
-    echo "Pass in correct argument"
+    printf "Pass in correct argument"
     exit 1
 }
 
@@ -36,45 +42,59 @@ then
     if [ "$1" = 'stop-all' ]
     then
 
-        echo "Trying to stop docker containers..."
+        printf "Trying to stop docker containers..."
         COMMAND=`docker stop $(docker ps -aq)` || error_exit "Could not stop docker containers"
 
          if [ "$?" = 0 ]; then
-             echo "Done!"
+             printf "Done!"
              exit 0
          fi
 
     elif [ "$1" = 'remove-all' ]
     then
-        echo "Trying to stop and remove docker containers..."
+        printf "Trying to stop and remove docker containers..."
         COMMAND=`docker stop $(docker ps -aq)` && `docker rm $(docker ps -aq)` || error_exit "Could not terminate docker containers"
 
          if [ "$?" = 0 ]; then
-             echo "Done!"
+             printf "Done!"
              exit 0
          fi
 
     elif [ "$1" = 'start' ]
     then
+        # Check if docker is already running
+        RUNNING=`pgrep docker`
+        if [ "$?" = "0" ]
+        then
+            error_exit "Docker already running. Aborting!"
+        fi
+
+        # Check if the docker-machine environment is provided
         if [ -z "$2" ]; then
             error_exit "No environment passed"
         fi
-        COMMAND=$(docker-machine start $2)
 
+        # Start the provided environment
+        COMMAND=$(docker-machine start $2 1>&2) || error_exit "Could not start docker machine"
+
+        # Exit if the command was successful
          if [ "$?" = 0 ]; then
-             echo "Done!"
-             exit 0
+             success_exit "Done!"
          fi
     elif [ "$1" = 'stop' ]
     then
+
+        # Check docker env provided
         if [ -z "$2" ]; then
             error_exit "No environment passed"
         fi
-        COMMAND=`docker-machine stop $2` || error_exit "Could not stop the docker machine"
+
+        # Proceed to stop the environment
+        COMMAND=$(docker-machine stop $2 1>&2) || error_exit "Could not stop the docker machine"
 
         # Check the machine statue
         MACHINE_STATUS=$( docker-machine ls | awk 'NR == 2 { print $3 }' )
-        if [ "$?" = 0 && $MACHINE_STATUS = 'Stopped']; then
+        if [ $MACHINE_STATUS = 'Stopped' ]; then
             error_exit "Docker machine stopped."
         fi
     fi
@@ -82,16 +102,3 @@ else
     # Show the help screen and exit 1
     show_help
 fi
-
-
-
-
-RUNNING=`pgrep docker`
-if [ "$?" = "0" ]
-then
-    error_exit "Docker already running. Aborting!"
-fi
-
-
-
-# echo ${#RUNNING[@]}
