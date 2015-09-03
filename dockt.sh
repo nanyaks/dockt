@@ -41,16 +41,35 @@ then
 
          if [ "$?" = 0 ]; then
              echo "Done!"
+             exit 0
          fi
 
     elif [ "$1" = 'remove-all' ]
     then
+        echo "Trying to stop and remove docker containers..."
         COMMAND=`docker stop $(docker ps -aq)` && `docker rm $(docker ps -aq)` || error_exit "Could not terminate docker containers"
+
+         if [ "$?" = 0 ]; then
+             echo "Done!"
+             exit 0
+         fi
+
     elif [ "$1" = 'start' ]
     then
-        echo "start"
+        if [ -z "$2" ]; then
+            error_exit "No environment passed"
+        fi
+        COMMAND=$(docker-machine start $2)
+
+         if [ "$?" = 0 ]; then
+             echo "Done!"
+             exit 0
+         fi
     elif [ "$1" = 'stop' ]
     then
+        if [ -z "$2" ]; then
+            error_exit "No environment passed"
+        fi
         COMMAND=`docker-machine stop $2` || error_exit "Could not stop the docker machine"
 
         # Check the machine statue
