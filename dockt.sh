@@ -46,7 +46,6 @@ then
 
     elif [ "$1" = 'stop-all' ]
     then
-
         printf "Trying to stop docker containers..."
         COMMAND=`docker stop $(docker ps -aq)` || error_exit "Could not stop docker containers"
 
