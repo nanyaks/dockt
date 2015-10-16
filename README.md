@@ -72,3 +72,4 @@ dockt status
 * `compose ps`
 * `show all`
 * `show`
+* `dockt enable dev` to replace `eval "$(docker-machine env dev)"`
