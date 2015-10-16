@@ -41,7 +41,7 @@ then
     if [ "$1" = 'status' ]; then
         $(docker-machine ls 1>&2) || error_exit "Could not determine status of 'docker-machine'"
          if [ "$?" = 0 ]; then
-             success_exit "Finished"
+             success_exit "\n"
          fi
 
     elif [ "$1" = 'stop-all' ]
